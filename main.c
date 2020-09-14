@@ -14,29 +14,12 @@ struct proceso{
 typedef struct proceso procesos;
 
 procesos proc[20];
-
 void generador_procesos();
+void imprimir_procesos();
 
 int main(void){
-
   generador_procesos ();
-
-  for(int i=0;i<20;i++){
-    printf("\n PROCESO # %d\n",i+1);
-    printf("PID: %d\n",proc[i].pid);
-    for(int j=0;j<5;j++){
-      printf("\nRAFAGAS %d\n",j+1);
-      printf("RAFAGA CPU: %d\n",proc[i].rafagas_CPU[j]);
-      printf("RAFAGA E/S: %d\n",proc[i].rafagas_ES[j]);
-    }
-    printf("\n");
-    printf("LLEGADA: %d\n",proc[i].tiempo_llegada);
-    printf("\n");
-  }
-
-
-
-
+  imprimir_procesos ();
 }
 
 
@@ -53,7 +36,7 @@ void generador_procesos(){
       proc[i].rafagas_ES[j] = temp;
       temp =0;
       while(temp<1){
-        temp =rand()%5;
+        temp =rand()%8;
       }
       proc[i].rafagas_CPU[j] = temp;
     }
@@ -64,5 +47,20 @@ void generador_procesos(){
       proc[i].tiempo_llegada =(proc[i-1].tiempo_llegada + (rand()%10));
     }
   }
+}
 
+
+void imprimir_procesos(){
+  for(int i=0;i<20;i++){
+    printf("\n PROCESO # %d\n",i+1);
+    printf("PID: %d\n",proc[i].pid);
+    for(int j=0;j<5;j++){
+      printf("\nRAFAGAS %d\n",j+1);
+      printf("RAFAGA CPU: %d\n",proc[i].rafagas_CPU[j]);
+      printf("RAFAGA E/S: %d\n",proc[i].rafagas_ES[j]);
+    }
+    printf("\n");
+    printf("LLEGADA: %d\n",proc[i].tiempo_llegada);
+    printf("\n");
+  }
 }
