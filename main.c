@@ -16,13 +16,11 @@ typedef struct proceso procesos;
 procesos proc[20];
 void generador_procesos( int ale);
 void imprimir_procesos(int ale);
+int generar_aleatorio();
 
 int main(void){
-  srand(time(NULL));
   int aleatorio =0;
-  while(aleatorio<6){
-    aleatorio=rand()%10;
-  }
+  aleatorio = generar_aleatorio ();
   generador_procesos (aleatorio);
   imprimir_procesos (aleatorio);
 }
@@ -72,4 +70,14 @@ void imprimir_procesos(int ale){
     printf("LLEGADA: %d\n",proc[i].tiempo_llegada);
     printf("\n");
   }
+}
+
+int generar_aleatorio()
+{
+  srand(time(NULL));
+  int aleatorio =0;
+  while(aleatorio<5){
+    aleatorio=rand()%10;
+  }
+  return aleatorio;
 }
