@@ -9,14 +9,14 @@ struct proceso{
   int rafagas_CPU[11];
   int rafagas_ES[10];
   int tiempo_llegada;
+  int cont_rafagas;
+  int tiempo_salida;
 };
 
 typedef struct proceso procesos;
 
 struct cola_cpu {
   procesos process;
-  int cont_rafagas;
-  int tiempo_salida;
   struct cola_cpu *siguiente;
 };
 
@@ -160,8 +160,8 @@ void enqueue(procesos nuevo_proceso) {
 
 
   nodoNuevo->process = nuevo_proceso;
-  nodoNuevo->cont_rafagas = 0;
-  nodoNuevo->tiempo_salida=0;
+  nodoNuevo->process.cont_rafagas = 0;
+  nodoNuevo->process.tiempo_salida=0;
 
   printf("\nAgregando a la cola de cpu el proceso %d\n",nodoNuevo->process.pid);
   if (isEmpty()) { // si la cola esta vacia
@@ -228,18 +228,18 @@ void nodo_en_cpu(int ale){
   printf("\n\n Nodo que se encuentra actualmente en el CPU");
   printf("\nPID: %d",inicio->process.pid);
   printf("\nTiempo de llegada: %d",inicio->process.tiempo_llegada);
-  printf("\nTiempo de salida: %d",inicio->tiempo_salida);
-  printf("\nRafagas que ha ejecutado este proceso: %d de %d",inicio->cont_rafagas+1,ale+1);
+  printf("\nTiempo de salida: %d",inicio->process.tiempo_salida);
+  printf("\nRafagas que ha ejecutado este proceso: %d de %d",inicio->process.cont_rafagas+1,ale+1);
 }
 void agregar_cpu(){
   if(cpu_vacio == 0){
-    inicio->tiempo_salida =contador_global+inicio->process.rafagas_CPU[inicio->cont_rafagas];
+    inicio->process.tiempo_salida =contador_global+inicio->process.rafagas_CPU[inicio->process.cont_rafagas];
     cpu_vacio =1;
   }
   if(cpu_vacio == 1){
-    if(inicio->tiempo_salida == contador_global){
+    if(inicio->process.tiempo_salida == contador_global){
       printf("\nYa acabo el proceso con PID: %d",inicio->process.pid);
-      inicio->cont_rafagas++;
+      inicio->process.cont_rafagas++;
       dequeue ();
       cpu_vacio =0;
       agregar_cpu ();
