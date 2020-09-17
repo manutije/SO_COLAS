@@ -53,7 +53,7 @@ int main(void){
     enqueue (proc[i]);
   }
   agregar_cpu ();
-  return menu ();
+  return menu (aleatorio);
 }
 
 
@@ -183,13 +183,13 @@ int isEmpty() {
   }
 }
 
-int menu() {
+int menu(int ale) {
   char c;
 
   do {
     printf("\n~~ MENU: Simulador ~~");
     printf("\n\nTiempo de la simulacion: %d",contador_global);
-    nodo_en_cpu ();
+    nodo_en_cpu (ale);
     printf("\nHaga una seleccion:");
     printf("\n 1. Limpiar pantalla");
     printf("\n 2. Avanzar");
@@ -224,11 +224,12 @@ void clearBuffer() {
     ;
 }
 
-void nodo_en_cpu(){
+void nodo_en_cpu(int ale){
   printf("\n\n Nodo que se encuentra actualmente en el CPU");
   printf("\nPID: %d",inicio->process.pid);
   printf("\nTiempo de llegada: %d",inicio->process.tiempo_llegada);
   printf("\nTiempo de salida: %d",inicio->tiempo_salida);
+  printf("\nRafagas que ha ejecutado este proceso: %d de %d",inicio->cont_rafagas+1,ale+1);
 }
 void agregar_cpu(){
   if(cpu_vacio == 0){
@@ -238,6 +239,7 @@ void agregar_cpu(){
   if(cpu_vacio == 1){
     if(inicio->tiempo_salida == contador_global){
       printf("\nYa acabo el proceso con PID: %d",inicio->process.pid);
+      inicio->cont_rafagas++;
       dequeue ();
       cpu_vacio =0;
       agregar_cpu ();
