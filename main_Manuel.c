@@ -13,11 +13,25 @@ struct proceso{
 
 typedef struct proceso procesos;
 
+struct cola_cpu {
+  procesos process;
+  struct cola_cpu *siguiente;
+};
+
+typedef struct cola_cpu Nodo;
+
+Nodo *final;
+Nodo *inicio;
+
 procesos proc[20];
 void generador_procesos( int ale);
 void imprimir_procesos(int ale);
 void ordenamiento();
 int generar_aleatorio();
+int isEmpty();
+void enqueue(procesos nuevo_proceso);
+void clearBuffer();
+int menu();
 
 int main(void){
   int aleatorio =0;
@@ -25,6 +39,12 @@ int main(void){
   generador_procesos (aleatorio);
   ordenamiento ();
   imprimir_procesos (aleatorio);
+
+  //Encolar a todos los procesos en cpu
+  for(int i=0;i<20;i++){
+    enqueue (proc[i]);
+  }
+  return menu ();
 }
 
 
@@ -107,4 +127,72 @@ void ordenamiento(){
 
     }
   }
+}
+
+
+// agrega un nodo nuevo al final de la cola
+void enqueue(procesos nuevo_proceso) {
+  Nodo *nodoNuevo,
+       *temporal;
+
+  nodoNuevo = (Nodo*) malloc(sizeof(Nodo));
+
+
+  nodoNuevo->process = nuevo_proceso;
+
+  printf("\nAgregando a la cola de cpu el proceso %d\n",nodoNuevo->process.pid);
+  if (isEmpty()) { // si la cola esta vacia
+    final = nodoNuevo; // el nodo toma el primer
+    inicio = nodoNuevo; // y el ultimo lugar
+  } else { // si hay al menos 1 nodo
+    temporal = final; // almacenamos el ultimo nodo agregado
+    final = nodoNuevo; // el nodoNuevo toma el primer lugar
+    final->siguiente = temporal; // apuntando al nodo que estaba en primer lugar
+  }
+  printf("nvo: %p\nfin: %p\nini: %p\n", nodoNuevo, final, inicio);
+}
+
+int isEmpty() {
+  if (!final) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+int menu() {
+  char c;
+
+  do {
+    printf("\n~~ MENU: Simulador ~~");
+    printf("\nHaga una seleccion:");
+    printf("\n 1. Limpiar pantalla");
+    printf("\n 2. Avanzar");
+    printf("\n 3. Terminar");
+    printf("\n q: salir.\n");
+    c = getchar();
+    switch(c) {
+      case '1':
+        system ("clear");
+        clearBuffer ();
+        break;
+      case '2':
+        printf("\n\n Avanzar");
+        clearBuffer ();
+        break;
+      case '3':
+        printf("\n\nTerminar");
+        clearBuffer ();
+        break;
+      default:
+        break;
+    }
+  } while(c != 'q' && c != EOF);
+
+  return 1;
+}
+
+void clearBuffer() {
+  while(getchar() != '\n')
+    ;
 }
