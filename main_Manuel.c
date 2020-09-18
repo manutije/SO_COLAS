@@ -26,9 +26,22 @@ Nodo *final;
 Nodo *inicio;
 
 
+struct cola_es {
+  procesos process;
+  struct cola_es *siguiente;
+};
+
+typedef struct cola_es Nodo2;
+
+Nodo2 *final2;
+Nodo2 *inicio2;
+
+
 procesos proc[20];
 int contador_global =0;
 int cpu_vacio =0;
+int cantidad_ES =0;
+int cantidad_CPU =0;
 void generador_procesos( int ale);
 void imprimir_procesos(int ale);
 void ordenamiento();
@@ -40,6 +53,8 @@ int menu();
 void nodo_en_cpu();
 void agregar_cpu();
 void dequeue();
+void enqueue2(procesos nuevo_proceso);
+void revisar_ES();
 
 int main(void){
   int aleatorio =0;
@@ -51,6 +66,7 @@ int main(void){
   //Encolar a todos los procesos en cpu
   for(int i=0;i<20;i++){
     enqueue (proc[i]);
+    cantidad_CPU++;
   }
   agregar_cpu ();
   return menu (aleatorio);
@@ -172,7 +188,6 @@ void enqueue(procesos nuevo_proceso) {
     final = nodoNuevo; // el nodoNuevo toma el primer lugar
     final->siguiente = temporal; // apuntando al nodo que estaba en primer lugar
   }
-  printf("nvo: %p\nfin: %p\nini: %p\n", nodoNuevo, final, inicio);
 }
 
 int isEmpty() {
@@ -189,7 +204,6 @@ int menu(int ale) {
   do {
     printf("\n~~ MENU: Simulador ~~");
     printf("\n\nTiempo de la simulacion: %d",contador_global);
-    nodo_en_cpu (ale);
     printf("\nHaga una seleccion:");
     printf("\n 1. Limpiar pantalla");
     printf("\n 2. Avanzar");
@@ -203,6 +217,10 @@ int menu(int ale) {
         break;
       case '2':
         printf("\n\n Avanzar");
+        agregar_cpu ();
+        nodo_en_cpu (ale);
+        revisar_ES ();
+        contador_global++;
         clearBuffer ();
         break;
       case '3':
@@ -212,8 +230,6 @@ int menu(int ale) {
       default:
         break;
     }
-    agregar_cpu ();
-    contador_global++;
   } while(c != 'q' && c != EOF);
 
   return 1;
@@ -238,8 +254,11 @@ void agregar_cpu(){
   }
   if(cpu_vacio == 1){
     if(inicio->process.tiempo_salida == contador_global){
-      printf("\nYa acabo el proceso con PID: %d",inicio->process.pid);
+      printf("\nYa acabo de usar CPU el proceso con PID: %d",inicio->process.pid);
       inicio->process.cont_rafagas++;
+      enqueue2 (inicio->process);
+      cantidad_ES++;
+      cantidad_CPU--;
       dequeue ();
       cpu_vacio =0;
       agregar_cpu ();
@@ -256,7 +275,6 @@ void dequeue() {
   clearBuffer();
 
   if (isEmpty()) {
-    printf("Y metiamos algo en la cola...");
   } else {
     if (final == inicio) { // si solo hay 1 nodo
       free(final); // liberamos la memoria que uso el nodo
@@ -273,3 +291,42 @@ void dequeue() {
     }
   }
 }
+
+
+void enqueue2(procesos nuevo_proceso) {
+  Nodo2 *nodoNuevo,
+       *temporal;
+  nodoNuevo = (Nodo2*) malloc(sizeof(Nodo2));
+  nodoNuevo->process = nuevo_proceso;
+  nodoNuevo->process.tiempo_salida=contador_global+nodoNuevo->process.rafagas_ES[nodoNuevo->process.cont_rafagas-1];
+
+  printf("\nAgregando a la cola de Entradas y Salidas\n");
+  printf("\nEl tiempo de salida de esta cola es: %d\n",nodoNuevo->process.tiempo_salida);
+  if (!final2) { // si la cola esta vacia
+    final2 = nodoNuevo; // el nodo toma el primer
+    inicio2 = nodoNuevo; // y el ultimo lugar
+  } else { // si hay al menos 1 nodo
+    temporal = final2; // almacenamos el ultimo nodo agregado
+    final2 = nodoNuevo; // el nodoNuevo toma el primer lugar
+    final2->siguiente = temporal; // apuntando al nodo que estaba en primer lugar
+  }
+}
+
+void revisar_ES(){
+  int tamano =0;
+  Nodo2 *temporal;
+  if (!final2){
+    printf("\nLa cola de Entradas y salidas se encuentra vacia\n");
+  }
+  else{
+    temporal = final2;
+    for(int i=0;i<cantidad_ES;i++){
+      printf("\nEn la cola de Entradas y salidas se encuentra el Proceso %d con tiempo de salida de %d",temporal->process.pid,temporal->process.tiempo_salida);
+      if(temporal != inicio2){
+        temporal = temporal->siguiente;
+      }
+    }
+  }
+}
+
+
